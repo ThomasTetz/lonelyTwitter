@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,7 +22,7 @@ import android.widget.ListView;
 
 public class LonelyTwitterActivity extends Activity {
 
-	private static final String FILENAME = "file.sav";
+	private static final String FILENAME = "file2.sav";
 	private EditText bodyText;
 	private ListView oldTweetsList;
 	
@@ -40,25 +41,33 @@ public class LonelyTwitterActivity extends Activity {
 			public void onClick(View v) {
 				setResult(RESULT_OK);
 				String text = bodyText.getText().toString();
-				saveInFile(text, new Date(System.currentTimeMillis()));
 
-//				Tweet tweet = new Tweet(""); // abstract, cannot be instantiated
-				Tweet tweet = new ImportantTweet("");
-                Tweet tweet1 = new NormalTweet("Hi");
-				try {
-					tweet.setMessage("Hello");
-				} catch (TweetTooLongException e) {
-//					e.printStackTrace();
-                }
-//                Log.d("", "The isImportant method on tweet returns " + tweet.isImportant());
-//                Log.d("", "The isImportant method on tweet1 returns " + tweet1.isImportant());
+				List moods = new ArrayList();
+				Mood happyMood = new HappyMood();
+				Mood sadMood = new SadMood();
+				moods.add(happyMood.getMoodString());
+//				moods.add(sadMood.getMoodString());
 
-                Tweetable tweet3 = new ImportantTweet("");
-                ArrayList<Tweet> tweetList = new ArrayList<Tweet>();
-                tweetList.add(tweet);
-                tweetList.add(tweet1);
-//                finish();
+				saveInFile(text, new Date(System.currentTimeMillis()), moods);
 
+                finish();
+
+//              In-lab exercises
+////				Tweet tweet = new Tweet(""); // abstract, cannot be instantiated
+//				Tweet tweet = new ImportantTweet("");
+//                Tweet tweet1 = new NormalTweet("Hi");
+//				try {
+//					tweet.setMessage("Hello");
+//				} catch (TweetTooLongException e) {
+////					e.printStackTrace();
+//                }
+////                Log.d("", "The isImportant method on tweet returns " + tweet.isImportant());
+////                Log.d("", "The isImportant method on tweet1 returns " + tweet1.isImportant());
+//
+//                Tweetable tweet3 = new ImportantTweet("");
+//                ArrayList<Tweet> tweetList = new ArrayList<Tweet>();
+//                tweetList.add(tweet);
+//                tweetList.add(tweet1);
 
             }
 		});
@@ -95,11 +104,11 @@ public class LonelyTwitterActivity extends Activity {
 		return tweets.toArray(new String[tweets.size()]);
 	}
 	
-	private void saveInFile(String text, Date date) {
+	private void saveInFile(String text, Date date, List moods) {
 		try {
 			FileOutputStream fos = openFileOutput(FILENAME,
 					Context.MODE_APPEND);
-			fos.write(new String(date.toString() + " | " + text)
+			fos.write(new String(date.toString() + " | " + moods + " " + text+"\n")
 					.getBytes());
 			fos.close();
 		} catch (FileNotFoundException e) {
