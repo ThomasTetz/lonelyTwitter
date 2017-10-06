@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -44,7 +45,7 @@ public class LonelyTwitterActivity extends Activity {
 
 		bodyText = (EditText) findViewById(R.id.body);
 		Button saveButton = (Button) findViewById(R.id.save);
-		Button clearButton = (Button) findViewById(R.id.clear);
+		Button searchButton = (Button) findViewById(R.id.search);
 		oldTweetsList = (ListView) findViewById(R.id.oldTweetsList);
 
 		saveButton.setOnClickListener(new View.OnClickListener() {
@@ -62,12 +63,25 @@ public class LonelyTwitterActivity extends Activity {
 			}
 		});
 
-		clearButton.setOnClickListener(new View.OnClickListener() {
+		searchButton.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {
 				setResult(RESULT_OK);
 				tweetList.clear();
-				deleteFile(FILENAME);  // TODO deprecate this button
+				String searchText = bodyText.getText().toString();
+				Toast.makeText(getApplicationContext(), "Searching: " + searchText, Toast.LENGTH_SHORT).show();
+
+				ElasticsearchTweetController.SearchTweetsTask searchTweetsTask
+						= new ElasticsearchTweetController.SearchTweetsTask();
+				searchTweetsTask.execute(searchText);
+				try{
+					tweetList.addAll(searchTweetsTask.get());
+				}
+				catch(Exception e){
+					Log.i("Error","Failed to get the tweets from the async object");
+				}
+//				tweetList.search();
+//				deleteFile(FILENAME);  // TODO deprecate this button
 				adapter.notifyDataSetChanged();
 			}
 		});

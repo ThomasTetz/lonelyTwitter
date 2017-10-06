@@ -61,13 +61,9 @@ public class ElasticsearchTweetController {
             ArrayList<NormalTweet> tweets = new ArrayList<NormalTweet>();
 
             // TODO Build the query
-            /*String query = "{\n" +
-                    "  \"query\": { \"match_all\": {} },\n" +
-                    "  \"sort\": { \"date\": { \"order\": \"desc\" } },\n" +
-                    "  \"size\": 10\n" +
-                    "}";*/
-
-            Search search = new Search.Builder(search_parameters[0])
+            String query = "{\n" + "  \"query\": { \"match_all\": {} },\n" + "  \"sort\": { \"date\": { \"order\": \"desc\" } },\n" + "  \"size\": 10\n" + "}";
+//            {"Happy News Year !"}
+            Search search = new Search.Builder(query)
                     .addIndex("testing")
                     .addType("tweet")
                     .build();
@@ -93,6 +89,62 @@ public class ElasticsearchTweetController {
         }
     }
 
+    // TODO we need a function which gets tweets from elastic search
+    public static class SearchTweetsTask extends AsyncTask<String, Void, ArrayList<NormalTweet>> {
+        @Override
+        protected ArrayList<NormalTweet> doInBackground(String... search_parameters) {
+            verifySettings();
+
+            ArrayList<NormalTweet> tweets = new ArrayList<NormalTweet>();
+
+            // TODO Build the query
+//            String query = "{\n" +
+//                    "  \"query\": { \"match_all\": {} },\n" +
+//                    "  \"sort\": { \"date\": { \"order\": \"desc\" } },\n" +
+//                    "  \"size\": 10\n" +
+//                    "}";
+
+            String query = "{ \"query\": { \"term\": { \"message\":  \"" + search_parameters[0] + "\"}}}";
+//            String query = "{\n" +
+//                    "  \"query\": { \"match\": { \"id\": { \"message\": { "+ search_parameters+ " } },\n" +
+//                    "  \"sort\": { \"date\": { \"order\": \"desc\" } },\n" +
+//                    "  \"size\": 10\n" +
+//                    "}";
+
+//            String query3 = "{\n" + "  \"query\": { \"match\": { \"testing\": {Hi} } },\n" + "  \"sort\": { \"date\": { \"order\": \"desc\" } },\n" + "  \"size\": 10\n" + "}";
+
+//
+//            String query2 = "{\n" +
+//                    " \"query\": { \"term\": {\"message\":\"" +
+//                    "hi" + "\"} }\n" +
+//                    "}";
+
+            Search search = new Search.Builder(query)
+                    .addIndex("testing")
+                    .addType("tweet")
+                    .build();
+            try {
+                SearchResult result = client.execute(search);
+                if(result.isSucceeded())
+                {
+//                    tweets.clear();
+                    List<NormalTweet> foundTweets
+                            = result.getSourceAsObjectList(NormalTweet.class);
+                    tweets.addAll(foundTweets);
+                }
+                else
+                {
+                    Log.i("Error","The search query failed");
+                }
+                // TODO get the results of the query
+            }
+            catch (Exception e) {
+                Log.i("Error", "Something went wrong when we tried to communicate with the elasticsearch server!");
+            }
+
+            return tweets;
+        }
+    }
 
 
 
