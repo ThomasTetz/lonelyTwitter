@@ -13,8 +13,10 @@ import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class LonelyTwitterActivity extends Activity {
+    private LonelyTwitterActivity activity = this;
 
 	private static final String FILENAME = "file.sav";
 	private EditText bodyText;
@@ -38,6 +41,7 @@ public class LonelyTwitterActivity extends Activity {
 
 		bodyText = (EditText) findViewById(R.id.body);
 		Button saveButton = (Button) findViewById(R.id.save);
+		Button clearButton = (Button) findViewById(R.id.clear);
 		oldTweetsList = (ListView) findViewById(R.id.oldTweetsList);
 
 		saveButton.setOnClickListener(new View.OnClickListener() {
@@ -51,6 +55,26 @@ public class LonelyTwitterActivity extends Activity {
 				saveInFile();
 			}
 		});
+
+		clearButton.setOnClickListener(new View.OnClickListener() {
+
+			public void onClick(View v) {
+				setResult(RESULT_OK);
+				tweetList.clear();
+				adapter.notifyDataSetChanged();
+                deleteFile(FILENAME);
+			}
+		});
+
+        oldTweetsList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                Intent intent = new Intent(activity, EditTweetActivity.class);
+//                https://stackoverflow.com/questions/9208827/how-to-extract-the-text-from-the-selected-item-on-the-listview
+                String selectedTweetText = (oldTweetsList.getItemAtPosition(position).toString());
+                intent.putExtra("selectedTweetText", selectedTweetText);
+                startActivity(intent);
+            }
+        });
 	}
 
 	@Override
